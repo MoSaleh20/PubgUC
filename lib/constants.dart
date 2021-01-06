@@ -4,7 +4,7 @@ import 'package:plant_app/components/customer.dart';
 import 'package:plant_app/components/pubgUC.dart';
 import 'databaseProvider.dart';
 
-const kPrimaryColor = Colors.black;
+var kPrimaryColor = Colors.black;
 const kTextColor = Color(0xFF3C4046);
 const kBackgroundColor = Color(0xFFF9F8FD);
 const double kDefaultPadding = 20.0;
@@ -12,43 +12,21 @@ const double kDefaultPadding = 20.0;
 List<PubgUc> allInvoices = [];
 List<Customer> allCustomers = [];
 
-final List<PubgUc> uc = [
-  PubgUc(id: 0, name: "Pubg UC 60", cost: 4.2),
-  PubgUc(id: 1, name: "Pubg UC 120", cost: 7.8),
-  PubgUc(id: 2, name: "Pubg UC 180", cost: 11.7),
-  PubgUc(id: 3, name: "Pubg UC 240", cost: 15.6),
-  PubgUc(id: 4, name: "Pubg UC 325", cost: 17.16),
-  PubgUc(id: 5, name: "Pubg UC 445", cost: 24.16),
-  PubgUc(id: 6, name: "Pubg UC 660", cost: 32),
-  PubgUc(id: 7, name: "Pubg UC 720", cost: 35.2),
-  PubgUc(id: 8, name: "Pubg UC 770", cost: 38.4),
-  PubgUc(id: 9, name: "Pubg UC 840", cost: 41.6),
-  PubgUc(id: 10, name: "Pubg UC 985", cost: 48),
-  PubgUc(id: 11, name: "Pubg UC 1320", cost: 64),
-  PubgUc(id: 12, name: "Pubg UC 1500", cost: 73.6),
-  PubgUc(id: 13, name: "Pubg UC 1800", cost: 80),
-  PubgUc(id: 14, name: "Pubg UC 1920", cost: 86.4),
-  PubgUc(id: 15, name: "Pubg UC 2040", cost: 92.8),
-  PubgUc(id: 16, name: "Pubg UC 2125", cost: 96),
-  PubgUc(id: 17, name: "Pubg UC 2460", cost: 112),
-  PubgUc(id: 18, name: "Pubg UC 3120", cost: 144),
-  PubgUc(id: 19, name: "Pubg UC 3850", cost: 160),
-  PubgUc(id: 20, name: "Pubg UC 4030", cost: 169.6),
-  PubgUc(id: 21, name: "Pubg UC 4235", cost: 179.2),
-  PubgUc(id: 22, name: "Pubg UC 4510", cost: 192),
-  PubgUc(id: 23, name: "Pubg UC 5650", cost: 240),
-  PubgUc(id: 24, name: "Pubg UC 6310", cost: 272),
-  PubgUc(id: 25, name: "Pubg UC 8100", cost: 320),
-  PubgUc(id: 26, name: "Pubg UC 8425", cost: 336),
-  PubgUc(id: 27, name: "Pubg UC 8750", cost: 352),
-  PubgUc(id: 28, name: "Pubg UC 9900", cost: 400),
-  PubgUc(id: 29, name: "Pubg UC 11950", cost: 480),
-  PubgUc(id: 30, name: "Pubg UC 13750", cost: 560),
-  PubgUc(id: 31, name: "Pubg UC 16200", cost: 640),
-  PubgUc(id: 32, name: "Pubg UC 17500", cost: 704),
-  PubgUc(id: 33, name: "Pubg UC 20050", cost: 800),
-  PubgUc(id: 34, name: "Pubg UC 24300", cost: 960),
-];
+Widget orderItem(invoices, index) {
+  DateTime now = DateTime.parse(invoices[index].date);
+  return Container(
+    child: ListTile(
+      focusColor: Colors.white,
+      subtitle:
+          Text('${invoices[index].customerName}  -  ${invoices[index].price}'),
+      title: Text(invoices[index].name),
+      trailing: Text(
+          '${now.year}-${now.month}-${now.day}  ${now.hour}:${now.minute}'),
+    ),
+  );
+}
+
+List<PubgUc> uc = [];
 
 class TitleWithCustomUnderline extends StatelessWidget {
   const TitleWithCustomUnderline({
@@ -71,16 +49,6 @@ class TitleWithCustomUnderline extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              margin: EdgeInsets.only(right: kDefaultPadding / 4),
-              height: 7,
-              color: kPrimaryColor.withOpacity(0.2),
-            ),
-          )
         ],
       ),
     );
@@ -92,12 +60,11 @@ class RecomendPlantCard extends StatelessWidget {
     Key key,
     this.image,
     this.title,
-    this.country,
     this.price,
     this.press,
   }) : super(key: key);
 
-  final String image, title, country;
+  final String image, title;
   final double price;
   final Function press;
 
@@ -164,7 +131,7 @@ class RecomendPlantCard extends StatelessWidget {
                               text: "$title\n".toUpperCase(),
                               style: Theme.of(context).textTheme.button),
                           TextSpan(
-                            text: "$country".toUpperCase(),
+                            text: "₪ $price",
                             style: TextStyle(
                               color: kPrimaryColor.withOpacity(0.5),
                             ),
@@ -173,13 +140,6 @@ class RecomendPlantCard extends StatelessWidget {
                       ),
                     ),
                     Spacer(),
-                    Text(
-                      '\₪$price',
-                      style: Theme.of(context)
-                          .textTheme
-                          .button
-                          .copyWith(color: kPrimaryColor),
-                    )
                   ],
                 ),
               ),
@@ -191,12 +151,151 @@ class RecomendPlantCard extends StatelessWidget {
   }
 }
 
-AppBar buildAppBar() {
+class UCcards extends StatelessWidget {
+  UCcards(
+      {Key key,
+      this.image,
+      this.title,
+      this.country,
+      this.price,
+      this.press,
+      this.icon,
+      this.height})
+      : super(key: key);
+
+  final String image, title, country;
+  final double price;
+  final Function press;
+  double height;
+  Icon icon;
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      margin: EdgeInsets.only(
+          left: kDefaultPadding,
+          top: kDefaultPadding,
+          bottom: kDefaultPadding,
+          right: kDefaultPadding),
+      width: size.width * 0.37,
+      height: this.height,
+      child: Column(
+        children: <Widget>[
+          GestureDetector(
+            onTap: press,
+            child: Column(children: [
+              Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage(image), fit: BoxFit.fill),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0, 10),
+                      blurRadius: 50,
+                      color: kPrimaryColor.withOpacity(0.23),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(kDefaultPadding / 2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0, 10),
+                      blurRadius: 50,
+                      color: kPrimaryColor.withOpacity(0.23),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: <Widget>[
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                              text: "$title\n".toUpperCase(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .button
+                                  .copyWith(fontSize: 14)),
+                          TextSpan(
+                            text: '\₪$price',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: kPrimaryColor.withOpacity(0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Spacer(),
+                    icon,
+                  ],
+                ),
+              ),
+            ]),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+AppBar customerAppBar(context, title) {
+  if (title == null) title = "";
+  var heading = Text(title);
   return AppBar(
+    title: heading,
+    centerTitle: true,
     elevation: 0,
     leading: IconButton(
-      icon: SvgPicture.asset("assets/icons/menu.svg"),
-      onPressed: () {},
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    ),
+  );
+}
+
+AppBar historyAppBar(title, size) {
+  return AppBar(
+    toolbarHeight: 80,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        bottom: Radius.circular(60),
+      ),
+    ),
+    backgroundColor: Colors.green[500],
+    title: Text(title),
+    centerTitle: true,
+    elevation: 0,
+    leadingWidth: size * 0.3,
+    leading: Builder(
+      builder: (BuildContext context) {
+        return IconButton(
+          splashColor: Colors.white,
+          icon: SvgPicture.asset(
+            "assets/icons/menu.svg",
+            width: 14,
+            height: 14,
+          ),
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+        );
+      },
     ),
   );
 }
@@ -205,18 +304,32 @@ bool home = true;
 bool history = false;
 bool profile = false;
 
-List<PubgUc> loading() {
-  List<PubgUc> invoices = [];
+fetchPacks() {
   FutureBuilder(
-      future: DatabaseProvider.db.packs,
+      future: DatabaseProvider.db.orders,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          invoices = snapshot.data;
-          print('123');
+          allInvoices = snapshot.data;
+          print('pack done');
           return;
         } else
-          print('11111111111111');
+          print('pack not done');
         return;
       });
-  return invoices;
+  print('packs done');
+}
+
+fetchCustomers() {
+  FutureBuilder(
+      future: DatabaseProvider.db.custs,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          allCustomers = snapshot.data;
+          print('done');
+          return;
+        } else
+          print('not done');
+        return;
+      });
+  print('all done');
 }

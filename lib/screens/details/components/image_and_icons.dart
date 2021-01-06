@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../constants.dart';
-import 'icon_card.dart';
 
 class ImageAndIcons extends StatelessWidget {
   const ImageAndIcons({
@@ -16,35 +15,45 @@ class ImageAndIcons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: kDefaultPadding),
+    return Container(
       child: SizedBox(
-        height: size.height * 0.8,
+        height: size.height,
         child: Row(
           children: <Widget>[
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: kDefaultPadding),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: kDefaultPadding * 8.4),
                 child: Column(
                   children: <Widget>[
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: IconButton(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                        icon: SvgPicture.asset("assets/icons/back_arrow.svg"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
+                    Container(
+                        padding: EdgeInsets.only(top: 27),
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle, color: Colors.grey[300]),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: IconButton(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: kDefaultPadding * 1.8),
+                            icon: SvgPicture.asset(
+                              "assets/icons/back_arrow.svg",
+                              height: 50,
+                              width: 50,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        )),
                   ],
                 ),
               ),
             ),
             Container(
-              height: size.height * 0.8,
-              width: size.width * 0.80,
+              height: size.height * 0.75,
+              width: size.width,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(63),
@@ -57,11 +66,11 @@ class ImageAndIcons extends StatelessWidget {
                     color: kPrimaryColor.withOpacity(0.29),
                   ),
                 ],
-                color: Colors.white,
+                color: kPrimaryColor,
                 image: DecorationImage(
                   alignment: Alignment.bottomLeft,
                   fit: BoxFit.contain,
-                  image: AssetImage("assets/images/number6.png"),
+                  image: AssetImage("assets/images/pubgman.png"),
                 ),
               ),
             ),

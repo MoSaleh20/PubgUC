@@ -1,434 +1,269 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:plant_app/components/customer.dart';
 import 'package:plant_app/components/pubgUC.dart';
 import 'package:plant_app/constants.dart';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
-import 'package:toast/toast.dart';
-import '../../../databaseProvider.dart';
+import 'package:plant_app/databaseProvider.dart';
+import 'package:plant_app/screens/item%20history/itemHistory_screen.dart';
+import 'dialog.dart';
 import 'image_and_icons.dart';
 import 'title_and_price.dart';
+import 'package:toast/toast.dart';
 
+// ignore: must_be_immutable
 class Body extends StatefulWidget {
-  Body(this.id);
-  int id;
+  Body(this.name);
+  String name;
 
   @override
-  _BodyState createState() => _BodyState(id);
+  _BodyState createState() => _BodyState(name);
 }
 
 class _BodyState extends State<Body> {
+  _BodyState(this.name);
   List<Customer> custs;
-
-  List<String> items = ["unknown"];
-  String defaultValue = "unknown";
+  List<PubgUc> ucPacks;
+  List<String> items = [];
   String dropDownValue;
-  var dateTimeGenerator = new DateTime.now();
-  List<String> customers = [];
-
   TextEditingController price = TextEditingController();
-  _BodyState(this.id);
-  int id;
+
+  String name;
+  PubgUc pubg;
   @override
   Widget build(BuildContext context) {
-    String now =
-        "${dateTimeGenerator.year}-${dateTimeGenerator.month}-${dateTimeGenerator.day}  ${dateTimeGenerator.hour}:${dateTimeGenerator.minute}";
     Size size = MediaQuery.of(context).size;
     return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          ImageAndIcons(
-            size: size,
-            image: uc[widget.id].image,
-          ),
-          TitleAndPrice(title: uc[widget.id].name, price: uc[widget.id].cost),
-          SizedBox(height: kDefaultPadding / 3.5),
-          Row(
-            children: <Widget>[
-              SizedBox(
-                width: size.width / 2,
-                height: 70,
-                child: FlatButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(20),
-                    ),
-                  ),
-                  color: kPrimaryColor,
-                  onPressed: () {
-                    showDialog(
-                        builder: (context) {
-                          return FutureBuilder(
-                              future: DatabaseProvider.db.custs,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  custs = snapshot.data;
-                                  allCustomers = custs;
-                                  for (var i = 0; i < custs.length; i++) {
-                                    customers = ["unknown"];
-                                    customers.add(custs[i].name);
-                                    print(custs[i].name);
-                                  }
-                                  return Dialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          kDefaultPadding),
-                                    ),
-                                    elevation: 0,
-                                    backgroundColor: Colors.black,
-                                    child: Stack(
-                                      children: <Widget>[
-                                        Container(
-                                          padding: EdgeInsets.only(
+      child: FutureBuilder(
+          future: DatabaseProvider.db.packs,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              ucPacks = snapshot.data;
+              uc = ucPacks;
+              for (var i = 0; i < ucPacks.length; i++) {
+                if (name == ucPacks[i].name) {
+                  pubg = ucPacks[i];
+                }
+              }
+
+              return Container(
+                  width: size.width,
+                  height: size.height * 1.15,
+                  child: Column(
+                    children: <Widget>[
+                      ImageAndIcons(
+                        size: size * 0.72,
+                        image: pubg.image,
+                      ),
+                      TitleAndPrice(title: pubg.name, price: pubg.cost),
+                      SizedBox(height: kDefaultPadding / 2),
+                      Column(children: [
+                        Row(
+                          children: <Widget>[
+                            SizedBox(
+                              width: size.width / 2,
+                              height: 70,
+                              child: FlatButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(40),
+                                    bottomRight: Radius.circular(40),
+                                  ),
+                                ),
+                                color: kPrimaryColor,
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) {
+                                        return showOrderDialog(pubg, context);
+                                      });
+                                },
+                                child: Text(
+                                  "Add Order",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              width: size.width / 2,
+                              height: 70,
+                              child: FlatButton(
+                                color: kPrimaryColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(40),
+                                      bottomLeft: Radius.circular(40)),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ItemHistoryScreen(pubg.name),
+                                      ));
+                                },
+                                child: Text(
+                                  "View History",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            SizedBox(
+                              width: size.width / 2,
+                              height: 70,
+                              child: FlatButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(40),
+                                    bottomRight: Radius.circular(40),
+                                  ),
+                                ),
+                                color: Colors.redAccent[400],
+                                onPressed: () {
+                                  showDialog(
+                                    builder: (context) {
+                                      return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              kDefaultPadding),
+                                        ),
+                                        elevation: 0,
+                                        backgroundColor: Colors.red[600],
+                                        child: Stack(
+                                          children: <Widget>[
+                                            Container(
+                                              padding: EdgeInsets.only(
+                                                  left: kDefaultPadding,
+                                                  top: 20 + kDefaultPadding,
+                                                  right: kDefaultPadding,
+                                                  bottom: kDefaultPadding),
+                                              margin: EdgeInsets.only(top: 20),
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.rectangle,
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          kDefaultPadding),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                        color: Colors.black,
+                                                        offset: Offset(0, 10),
+                                                        blurRadius: 10),
+                                                  ]),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  SizedBox(
+                                                    height: 160,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceAround,
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                          "Deletion can't be undone.",
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .grey[600],
+                                                              fontSize: 11),
+                                                        ),
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerRight,
+                                                        child: FlatButton(
+                                                            onPressed: () {
+                                                              // DatabaseProvider
+                                                              //     .db
+                                                              //     .removePack(ucPacks[index].name);
+                                                              Toast.show(
+                                                                  'This Pack cannot be deleted!',
+                                                                  context,
+                                                                  backgroundColor:
+                                                                      Colors.red[
+                                                                          600],
+                                                                  duration: 5);
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+
+                                                              setState(() {});
+                                                            },
+                                                            child: Text(
+                                                              "Delete",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red[600],
+                                                                  fontSize: 18),
+                                                            )),
+                                                      ),
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                            Positioned(
                                               left: kDefaultPadding,
-                                              top: 20 + kDefaultPadding,
                                               right: kDefaultPadding,
-                                              bottom: kDefaultPadding),
-                                          margin: EdgeInsets.only(top: 20),
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.rectangle,
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      kDefaultPadding),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                    color: Colors.black,
-                                                    offset: Offset(0, 10),
-                                                    blurRadius: 10),
-                                              ]),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[
-                                              SizedBox(
-                                                height: 15,
-                                              ),
-                                              Text(
-                                                uc[widget.id].name,
-                                                style: TextStyle(
-                                                    fontSize: 22,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                              ),
-                                              SizedBox(
-                                                height: 15,
-                                              ),
-                                              Text(
-                                                now,
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w600),
-                                              ),
-                                              SizedBox(
-                                                height: 15,
-                                              ),
-                                              TextField(
-                                                  controller: price,
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  inputFormatters: <
-                                                      TextInputFormatter>[
-                                                    FilteringTextInputFormatter
-                                                        .allow(RegExp(
-                                                            r"^\d*\.?\d*"))
-                                                  ],
-                                                  decoration: InputDecoration(
-                                                      icon: Icon(Icons
-                                                          .money_rounded))),
-                                              SizedBox(
-                                                height: 22,
-                                              ),
-                                              DropdownButton<String>(
-                                                value: defaultValue,
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                                dropdownColor: Colors.white,
-                                                items: items.map<
-                                                        DropdownMenuItem<
-                                                            String>>(
-                                                    (String value) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: value,
-                                                    child: Text(
-                                                      "$value",
-                                                      style: TextStyle(
-                                                          color: Colors.black),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                                onChanged: (String newValue) {
-                                                  setState(() {
-                                                    defaultValue = newValue;
-                                                  });
-                                                },
-                                              ),
-                                              SizedBox(
-                                                height: 22,
-                                              ),
-                                              Align(
-                                                alignment:
-                                                    Alignment.bottomRight,
-                                                child: FlatButton(
-                                                    onPressed: () {
-                                                      if (allCustomers
-                                                          .isNotEmpty)
-                                                        for (var i = 0;
-                                                            i <
-                                                                allCustomers
-                                                                    .length;
-                                                            i++) {
-                                                          if (allCustomers[i]
-                                                                  .name ==
-                                                              defaultValue) {
-                                                            uc[widget.id]
-                                                                    .customerID =
-                                                                allCustomers[i]
-                                                                    .id;
-                                                          }
-                                                        }
-                                                      if (price.text
-                                                              .isNotEmpty &&
-                                                          dropDownValue !=
-                                                              null) {
-                                                        DatabaseProvider.db
-                                                            .insertInvoice(
-                                                                PubgUc(
-                                                          id: uc[widget.id].id,
-                                                          name: uc[widget.id]
-                                                              .name,
-                                                          cost: uc[widget.id]
-                                                              .cost,
-                                                          customerID:
-                                                              uc[widget.id]
-                                                                  .customerID,
-                                                          price: double.parse(
-                                                              price.text),
-                                                          image: uc[widget.id]
-                                                              .image,
-                                                          date: now,
-                                                        ));
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                        price.text = "";
-                                                        Toast.show(
-                                                            'Invoice Added!',
-                                                            context);
-                                                      } else {
-                                                        Toast.show(
-                                                            'Insert a price!',
-                                                            context);
-                                                      }
-                                                    },
-                                                    child: Text(
-                                                      "Add",
-                                                      style: TextStyle(
-                                                          fontSize: 18),
+                                              top: kDefaultPadding,
+                                              child: CircleAvatar(
+                                                backgroundColor: Colors.white,
+                                                radius: 100,
+                                                child: ClipRRect(
+                                                    borderRadius: BorderRadius
+                                                        .all(Radius.circular(
+                                                            kDefaultPadding)),
+                                                    child: Image.asset(
+                                                      'assets/images/deleteGIF.gif',
+                                                      scale: 1,
                                                     )),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
-                                        Positioned(
-                                          left: kDefaultPadding,
-                                          right: kDefaultPadding,
-                                          child: CircleAvatar(
-                                            backgroundColor: Colors.black,
-                                            radius: 30,
-                                            child: ClipRRect(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(
-                                                        kDefaultPadding)),
-                                                child: Icon(
-                                                  Icons.add,
-                                                  color: Colors.white,
-                                                  size: 50,
-                                                )),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      );
+                                    },
+                                    context: context,
                                   );
-                                } else
-                                  return Text('NO DATA!!');
-                              });
-                        },
-                        context: context);
-                  },
-                  child: Text(
-                    "Add Order",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  width: size.width / 2,
-                  height: 70,
-                  child: FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: Text(
-                      "View History",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+                                },
+                                child: Text(
+                                  "Delete Pack",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]),
+                    ],
+                  ));
+            } else
+              return Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text('Data not available!'));
+          }),
     );
   }
-//  void __showDialog(BuildContext context) {
-
-//     List<String> items = ["a", "b"];
-//     String defaultValue = "a";
-//     var dateTimeGenerator = new DateTime.now();
-//     String now =
-//         "${dateTimeGenerator.year}-${dateTimeGenerator.month}-${dateTimeGenerator.day}  ${dateTimeGenerator.hour}:${dateTimeGenerator.minute}";
-//     TextEditingController price = TextEditingController();
-//     contentBox(context) {
-//       return Stack(
-//         children: <Widget>[
-//           Container(
-//             padding: EdgeInsets.only(
-//                 left: kDefaultPadding,
-//                 top: 20 + kDefaultPadding,
-//                 right: kDefaultPadding,
-//                 bottom: kDefaultPadding),
-//             margin: EdgeInsets.only(top: 20),
-//             decoration: BoxDecoration(
-//                 shape: BoxShape.rectangle,
-//                 color: Colors.white,
-//                 borderRadius: BorderRadius.circular(kDefaultPadding),
-//                 boxShadow: [
-//                   BoxShadow(
-//                       color: Colors.black,
-//                       offset: Offset(0, 10),
-//                       blurRadius: 10),
-//                 ]),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: <Widget>[
-//                 SizedBox(
-//                   height: 15,
-//                 ),
-//                 Text(
-//                   uc[widget.id].name,
-//                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-//                 ),
-//                 SizedBox(
-//                   height: 15,
-//                 ),
-//                 Text(
-//                   now,
-//                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-//                 ),
-//                 SizedBox(
-//                   height: 15,
-//                 ),
-//                 TextField(
-//                     controller: price,
-//                     keyboardType: TextInputType.number,
-//                     inputFormatters: <TextInputFormatter>[
-//                       FilteringTextInputFormatter.allow(RegExp(r"^\d*\.?\d*"))
-//                     ],
-//                     decoration:
-//                         InputDecoration(icon: Icon(Icons.money_rounded))),
-//                 SizedBox(
-//                   height: 22,
-//                 ),
-//                 DropdownButton<String>(
-//                   dropdownColor: Colors.black,
-//                   items: items.map((String value) {
-//                     return DropdownMenuItem<String>(
-//                       value: defaultValue,
-//                       child: Text(
-//                         "$value",
-//                         style: TextStyle(color: Colors.white),
-//                       ),
-//                     );
-//                   }).toList(),
-//                   onChanged: (_) {},
-//                 ),
-//                 SizedBox(
-//                   height: 22,
-//                 ),
-//                 Align(
-//                   alignment: Alignment.bottomRight,
-//                   child: FlatButton(
-//                       onPressed: () {
-//                         if (price.text.isNotEmpty) {
-//                           DatabaseProvider.db.insertInvoice(PubgUc(
-//                             id: uc[widget.id].id,
-//                             name: uc[widget.id].name,
-//                             cost: uc[widget.id].cost,
-//                             price: double.parse(price.text),
-//                             image: uc[widget.id].image,
-//                             date: now,
-//                           ));
-//                           Navigator.of(context).pop();
-//                           Toast.show('Invoice Added!', context);
-//                         } else {
-//                           Toast.show('Insert a price!', context);
-//                         }
-//                       },
-//                       child: Text(
-//                         "Add",
-//                         style: TextStyle(fontSize: 18),
-//                       )),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           Positioned(
-//             left: kDefaultPadding,
-//             right: kDefaultPadding,
-//             child: CircleAvatar(
-//               backgroundColor: Colors.black,
-//               radius: 30,
-//               child: ClipRRect(
-//                   borderRadius:
-//                       BorderRadius.all(Radius.circular(kDefaultPadding)),
-//                   child: Icon(
-//                     Icons.add,
-//                     color: Colors.white,
-//                     size: 50,
-//                   )),
-//             ),
-//           ),
-//         ],
-//       );
-//     }
-
-// //     showDialog(
-// //         builder: (context) {
-// //           return Dialog(
-// //             shape: RoundedRectangleBorder(
-// //               borderRadius: BorderRadius.circular(kDefaultPadding),
-// //             ),
-// //             elevation: 0,
-// //             backgroundColor: Colors.black,
-// //             child: contentBox(context),
-// //           );
-// //         },
-// //         context: context);
-// //   }
-// // }
-
-//   }
 }

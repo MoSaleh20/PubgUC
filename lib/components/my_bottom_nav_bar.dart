@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:plant_app/screens/details/details_screen.dart';
-import 'package:plant_app/screens/history/history_screen.dart';
-import 'package:plant_app/screens/home/home_screen.dart';
-
 import '../constants.dart';
 import '../main.dart';
 
@@ -39,10 +34,16 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           IconButton(
-            icon: Icon(
-              homeIcon(),
-              size: 35,
-            ),
+            icon: historyIcon(),
+            onPressed: () {
+              home = false;
+              history = true;
+              profile = false;
+              main();
+            },
+          ),
+          IconButton(
+            icon: homeIcon(),
             onPressed: () {
               home = true;
               history = false;
@@ -52,22 +53,7 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
             },
           ),
           IconButton(
-            icon: Icon(
-              historyIcon(),
-              size: 35,
-            ),
-            onPressed: () {
-              home = false;
-              history = true;
-              profile = false;
-              main();
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              profileIcon(),
-              size: 35,
-            ),
+            icon: profileIcon(),
             onPressed: () {
               home = false;
               history = false;
@@ -80,27 +66,48 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
     );
   }
 
-  IconData homeIcon() {
+  Icon homeIcon() {
     if (home) {
-      return Icons.add_to_photos_rounded;
+      return Icon(
+        Icons.add_to_photos,
+        size: 30,
+        color: Colors.blue[600],
+      );
     } else {
-      return Icons.add_to_photos_outlined;
+      return Icon(
+        Icons.add_to_photos_outlined,
+        size: 25,
+      );
     }
   }
 
-  IconData historyIcon() {
+  Icon historyIcon() {
     if (history) {
-      return Icons.assignment_turned_in_rounded;
+      return Icon(
+        Icons.assignment_turned_in_rounded,
+        size: 30,
+        color: Colors.green[500],
+      );
     } else {
-      return Icons.assignment_turned_in_outlined;
+      return Icon(
+        Icons.assignment_turned_in_outlined,
+        size: 25,
+      );
     }
   }
 
-  IconData profileIcon() {
+  Icon profileIcon() {
     if (profile) {
-      return Icons.favorite;
+      return Icon(
+        Icons.favorite,
+        size: 30,
+        color: Colors.redAccent[400],
+      );
     } else {
-      return Icons.favorite_border;
+      return Icon(
+        Icons.favorite_border,
+        size: 25,
+      );
     }
   }
 }

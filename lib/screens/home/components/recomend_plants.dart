@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:plant_app/components/pubgUC.dart';
+import 'package:plant_app/databaseProvider.dart';
 import 'package:plant_app/screens/details/details_screen.dart';
 
 import '../../../constants.dart';
@@ -10,96 +13,57 @@ class RecomendsPlants extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: <Widget>[
-          RecomendPlantCard(
-            //0
-            image: uc[0].image,
-            title: uc[0].name,
-            price: uc[0].cost,
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsScreen(uc[0].id),
-                ),
-              );
-            },
-          ),
-          RecomendPlantCard(
-            //1
-            image: uc[1].image,
-            title: uc[1].name,
-            price: uc[1].cost,
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsScreen(uc[1].id),
-                ),
-              );
-            },
-          ),
-          RecomendPlantCard(
-            //2
-            image: uc[2].image,
-            title: uc[2].name,
-            price: uc[2].cost,
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsScreen(uc[2].id),
-                ),
-              );
-            },
-          ),
-          RecomendPlantCard(
-            //3
-            image: uc[3].image,
-            title: uc[3].name,
-            price: uc[3].cost,
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsScreen(uc[3].id),
-                ),
-              );
-            },
-          ),
-          RecomendPlantCard(
-            //4
-            image: uc[4].image,
-            title: uc[4].name,
-            price: uc[4].cost,
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsScreen(uc[4].id),
-                ),
-              );
-            },
-          ),
-          RecomendPlantCard(
-            //5
-            image: uc[5].image,
-            title: uc[5].name,
-            price: uc[5].cost,
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsScreen(uc[5].id),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
+    List<PubgUc> ucPacks;
+    if (uc.isNotEmpty) {
+      return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: FutureBuilder(
+              future: DatabaseProvider.db.packs,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  ucPacks = snapshot.data;
+                  uc = ucPacks;
+                  List<PubgUc> onlyFavoriteUc = [];
+                  for (var i = 0; i < ucPacks.length; i++) {
+                    if (ucPacks[i].isFavorite == 1) {
+                      onlyFavoriteUc.add(ucPacks[i]);
+                    }
+                  }
+                  return Row(
+                    children: <Widget>[
+                      ...List.generate(
+                        onlyFavoriteUc.length,
+                        (index) => RecomendPlantCard(
+                          image: onlyFavoriteUc[index].image,
+                          title: onlyFavoriteUc[index].name,
+                          price: onlyFavoriteUc[index].cost,
+                          press: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DetailsScreen(onlyFavoriteUc[index].name),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                    ],
+                  );
+                } else
+                  return Container(
+                      padding: EdgeInsets.all(10), child: Text('Loading...'));
+              }));
+    } else
+      return Container(
+        padding: EdgeInsets.all(10),
+        child: Text(
+          'no data',
+          style: GoogleFonts.aBeeZee(fontSize: 30),
+        ),
+      );
   }
 }

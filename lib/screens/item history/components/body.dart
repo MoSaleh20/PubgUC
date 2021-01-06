@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:plant_app/components/pubgUC.dart';
 import 'package:plant_app/constants.dart';
-import '../../../databaseProvider.dart';
+import 'package:plant_app/databaseProvider.dart';
 
 class Body extends StatefulWidget {
+  String title;
   @override
-  _BodyState createState() => _BodyState();
+  _BodyState createState() => _BodyState(title);
+  Body(this.title);
 }
 
 class _BodyState extends State<Body> {
+  _BodyState(this.title);
+  String title;
+
   @override
   Widget build(BuildContext context) {
     List<PubgUc> invoices = [];
-
+    List<PubgUc> itemInvoices = [];
     return SingleChildScrollView(
         child: Column(children: [
       FutureBuilder(
@@ -21,7 +26,10 @@ class _BodyState extends State<Body> {
             if (snapshot.hasData) {
               invoices = snapshot.data;
               allInvoices = invoices;
-              invoices.sort((a, b) {
+              for (var i = 0; i < invoices.length; i++) {
+                if (invoices[i].name == title) itemInvoices.add(invoices[i]);
+              }
+              itemInvoices.sort((a, b) {
                 return b.date
                     .toString()
                     .toLowerCase()
@@ -31,13 +39,22 @@ class _BodyState extends State<Body> {
                 physics: const NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
-                itemCount: invoices.length,
+                itemCount: itemInvoices.length,
                 itemBuilder: (context, index) {
-                  return orderItem(invoices, index);
+                  DateTime now = DateTime.parse(invoices[index].date);
+                  return Container(
+                    child: ListTile(
+                      focusColor: Colors.white,
+                      subtitle: Text('${itemInvoices[index].price}'),
+                      title: Text(itemInvoices[index].name),
+                      trailing: Text(
+                          "${now.year}-${now.month}-${now.day}  ${now.hour}:${now.minute}"),
+                    ),
+                  );
                 },
               );
             } else
-              return Text('No Date');
+              return Text('No Data');
           })
     ]));
   }

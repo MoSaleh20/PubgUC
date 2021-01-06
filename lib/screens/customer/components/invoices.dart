@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:plant_app/components/customer.dart';
 import 'package:plant_app/components/pubgUC.dart';
-import '../../../databaseProvider.dart';
 
+// ignore: must_be_immutable
 class Invoices extends StatefulWidget {
   Customer customer;
   List<PubgUc> invoices;
@@ -24,18 +24,19 @@ class _InvoicesState extends State<Invoices> {
       shrinkWrap: true,
       itemCount: invoices.length,
       itemBuilder: (context, index) {
-        print('customer8');
-        if (invoices == null) {
-          print('no invoices');
+        if (invoices.isEmpty) {
           return Text('no invoices');
         } else {
-          print('invoices');
+          DateTime now = DateTime.parse(invoices[index].date);
+
           return Container(
             child: ListTile(
-                focusColor: Colors.white,
-                title: Text(invoices[index].name),
-                subtitle: Text('${invoices[index].price}'),
-                trailing: Text('${invoices[index].date}')),
+              focusColor: Colors.white,
+              title: Text(invoices[index].name),
+              subtitle: Text('${invoices[index].price}'),
+              trailing: Text(
+                  '${now.year}-${now.month}-${now.day}  ${now.hour}:${now.minute}'),
+            ),
           );
         }
       },
